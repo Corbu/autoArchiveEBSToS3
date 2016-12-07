@@ -1,14 +1,14 @@
 # AWS Auto Archive EBS to S3 Lambda Script
 # Archives EBS volumes to S3 on instance stop automatically
 # created by Cory Burns
-# Version 0.0
+# Version 0.1
 
 import boto3
 
 # Variables
 region = 'us-east-1' # The region your EC2 instances are in
-# avalabilityZone = 'xxx' # The availability zone the stopped instance is in, this will be pulled from the cloudwatch data hopefully
-# ami = 'xxx' # The default Linux AMI.  Keep this updated
+availabilityZone = 'us-east-1a' # The availability zone the stopped instance is in, this will be pulled from the cloudwatch data hopefully
+ami = 'ami-b73b63a0' # The default Linux AMI.  Keep this updated
 ## S3 Bucket
 ## Terminate original EC2 instance on completion #Off by default
 ## Include AutoScale #Off by default?
@@ -31,8 +31,9 @@ def lambda_handler(event, context):
 	# This is from the boto3.readthedocs.io page.  I think I have this paired down to what I need, I just need to turn these into
 	# variables that make sense...and figure out the EBS syntax specifically
 	# http://boto3.readthedocs.io/en/latest/reference/services/ec2.html#EC2.Client.run_instances
+	client = boto3.client('ec2')
 	response = client.run_instances(
-		ImageId='string', # Required, this will be replaced with a variable
+		ImageId=ami, # Required, this will be replaced with a variable
 		MinCount=1, # Required
 		MaxCount=1, # Required
 		# SecurityGroups=[ # This will be replaced with a variable
@@ -50,14 +51,14 @@ def lambda_handler(event, context):
 		# UserData='string', # This should also be replaced with a variable
 		InstanceType='t2.micro', # Required
 		Placement={
-			'AvailabilityZone': 'string', # Replace this with variable
+			'AvailabilityZone': availabilityZone
 		},
 		BlockDeviceMappings=[
 			{
-				'VirtualName': 'string',
-				'DeviceName': 'string',
+				'DeviceName': '/dev/xvda',
 				'Ebs': {
 					# 'SnapshotId': 'string',
+					'VolumeSize': 8,
 					'DeleteOnTermination': True,
 					'VolumeType': 'gp2',
 				},
