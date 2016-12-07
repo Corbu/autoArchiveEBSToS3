@@ -8,6 +8,8 @@
 # variables that make sense...and figure out the EBS syntax specifically
 # http://boto3.readthedocs.io/en/latest/reference/services/ec2.html#EC2.Client.run_instances
 
+import boto3
+
 def createEC2(ami,availabilityZone):
 	client = boto3.client('ec2')
 	response = client.run_instances(
